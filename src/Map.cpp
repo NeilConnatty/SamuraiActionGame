@@ -1,4 +1,5 @@
 #include <Map.h>
+#include <string.h>
 
 constexpr sf::Vector2u mapSize = {20, 15};
 constexpr sf::Vector2u tileSize = {16, 16};
