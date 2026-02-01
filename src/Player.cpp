@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <Player.h>
+#include <Map.h>
 
 enum PlayerInput : size_t
 {
@@ -53,10 +54,25 @@ void Player::update()
         direction.x -= 1;
     if (m_inputs[INPUT_RIGHT])
         direction.x += 1;
-
+    
     if (direction == sf::Vector2f{0.f, 0.f})
         return;
+
+    sf::FloatRect boundingBox = m_transform.transformRect(m_sprite.getGlobalBounds());
+
+    sf::FloatRect nextX = boundingBox;
+    nextX.position.x += direction.x;
+    if (m_map.checkWallCollision(nextX))
+        direction.x = 0;
+
+    sf::FloatRect nextY = boundingBox;
+    nextY.position.y += direction.y;
+    if (m_map.checkWallCollision(nextY))
+        direction.y = 0;
     
+    if (direction == sf::Vector2f{0.f, 0.f})
+        return;
+
     direction = direction.normalized();
     sf::Vector2f velocity = direction * PLAYER_SPEED;
     m_transform.translate(velocity);

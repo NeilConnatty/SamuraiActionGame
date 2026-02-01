@@ -5,7 +5,7 @@ constexpr sf::Vector2u mapSize = {20, 15};
 constexpr sf::Vector2u tileSize = {16, 16};
 
 void populateVertexArray(sf::VertexArray& vertices, const sf::Texture& tileset, const std::vector<int> tiles)
-    {
+{
     // resize the vertex array to fit the level size
     vertices.setPrimitiveType(sf::PrimitiveType::Triangles);
     vertices.resize(mapSize.x * mapSize.y * 6);
@@ -71,10 +71,49 @@ void Map::initialize()
     tiles.clear();
     populateTiles(tiles, "../../assets/sprites/walls-tilemap.txt");
     populateVertexArray(m_wallsVertices, m_wallsTileset, tiles);
+    populateWallBoundingBoxes(tiles);
 }
 
-void Map::draw(sf::RenderTarget& target)
+void Map::populateWallBoundingBoxes(const std::vector<int>& tiles)
+{
+    for (uint i = 0; i < mapSize.x; ++i)
+    {
+        for (uint j = 0; j < mapSize.y; ++j)
+        {
+            // get the current tile number
+            const int tileNumber = tiles[i + j * mapSize.x];
+
+            if (tileNumber == 1)
+            {
+                // get a pointer to the triangles' vertices of the current tile
+                sf::FloatRect &rect = m_boundingBoxes[i][j];
+
+                // define the 6 corners of the two triangles
+                rect.position = sf::Vector2f(i * tileSize.x, j * tileSize.y);
+                rect.size = {tileSize.x, tileSize.y};
+            }
+        }
+    }
+}
+
+void Map::draw(sf::RenderTarget& target) const
 {
     target.draw(m_backgroundVertices, sf::RenderStates{&m_backgroundTileset});
     target.draw(m_wallsVertices, sf::RenderStates{&m_wallsTileset});
+}
+
+bool Map::checkWallCollision(sf::FloatRect boundingBox) const
+{
+    // need to account for the box covering more than one tile, so figure out which tiles we need to check collisions against
+    uint tileColumnStart = static_cast<uint>(boundingBox.position.x) / tileSize.x;
+    uint tileColumnEnd = static_cast<uint>(boundingBox.position.x + boundingBox.size.x) / tileSize.x;
+    uint tileRowStart = static_cast<uint>(boundingBox.position.y) / tileSize.y;
+    uint tileRowEnd = static_cast<uint>(boundingBox.position.y + boundingBox.size.y) / tileSize.y;
+
+    for (uint column = tileColumnStart; column < tileColumnEnd; ++column)
+        for (uint row = tileRowStart; row < tileRowEnd; ++row)
+            if (m_boundingBoxes[column][row].findIntersection(boundingBox))
+                return true;
+
+    return false;
 }
