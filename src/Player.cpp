@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <Player.h>
+#include <Map.h>
 
 enum PlayerInput : size_t
 {
@@ -56,9 +57,38 @@ void Player::update()
 
     if (direction == sf::Vector2f{0.f, 0.f})
         return;
-    
+
     direction = direction.normalized();
     sf::Vector2f velocity = direction * PLAYER_SPEED;
+
+    sf::FloatRect boundingBox = m_transform.transformRect(m_sprite.getGlobalBounds());
+
+    if (velocity.x > 0.f) // moving right, check right edge
+    {
+        if (m_map.checkWallCollision({boundingBox.position.x + boundingBox.size.x + velocity.x, boundingBox.position.y}) ||
+            m_map.checkWallCollision({boundingBox.position.x + boundingBox.size.x + velocity.x, boundingBox.position.y + boundingBox.size.y}))
+            velocity.x = 0.f;
+    }
+    else if (velocity.x < 0.f) // moving left, check left edge
+    {
+        if (m_map.checkWallCollision({boundingBox.position.x + velocity.x, boundingBox.position.y}) ||
+            m_map.checkWallCollision({boundingBox.position.x + velocity.x, boundingBox.position.y + boundingBox.size.y}))
+            velocity.x = 0.f;
+    }
+    
+    if (velocity.y > 0.f) // moving down, check bottom edge
+    {
+        if (m_map.checkWallCollision({boundingBox.position.x, boundingBox.position.y + boundingBox.size.y + velocity.y}) ||
+            m_map.checkWallCollision({boundingBox.position.x + boundingBox.size.x, boundingBox.position.y + boundingBox.size.y + velocity.y}))
+            velocity.y = 0.f;
+    }
+    else if (velocity.y < 0.f) // moving up, check top edge
+    {
+        if (m_map.checkWallCollision({boundingBox.position.x, boundingBox.position.y + velocity.y}) ||
+            m_map.checkWallCollision({boundingBox.position.x + boundingBox.size.x, boundingBox.position.y + velocity.y}))
+            velocity.y = 0.f;
+    }
+    
     m_transform.translate(velocity);
 }
 

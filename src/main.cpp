@@ -11,10 +11,10 @@ int main()
     window.setView(sf::View{viewport});
     window.setFramerateLimit(60);
 
-    Player player;
-    player.initialize();
     Map map;
     map.initialize();
+    Player player{map};
+    player.initialize();
 
     auto onWindowClose = [&window](const sf::Event::Closed&)
     {
