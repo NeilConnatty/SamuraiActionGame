@@ -58,23 +58,21 @@ void Player::update()
     if (direction == sf::Vector2f{0.f, 0.f})
         return;
 
+    direction = direction.normalized();
+    sf::Vector2f velocity = direction * PLAYER_SPEED;
+
     sf::FloatRect boundingBox = m_transform.transformRect(m_sprite.getGlobalBounds());
 
     sf::FloatRect nextX = boundingBox;
-    nextX.position.x += direction.x;
+    nextX.position.x += velocity.x;
     if (m_map.checkWallCollision(nextX))
-        direction.x = 0;
+        velocity.x = 0;
 
     sf::FloatRect nextY = boundingBox;
-    nextY.position.y += direction.y;
+    nextY.position.y += velocity.y;
     if (m_map.checkWallCollision(nextY))
-        direction.y = 0;
+        velocity.y = 0;
     
-    if (direction == sf::Vector2f{0.f, 0.f})
-        return;
-
-    direction = direction.normalized();
-    sf::Vector2f velocity = direction * PLAYER_SPEED;
     m_transform.translate(velocity);
 }
 
