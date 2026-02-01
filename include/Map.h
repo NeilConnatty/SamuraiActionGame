@@ -9,7 +9,7 @@ public:
     void draw(sf::RenderTarget& target) const;
 
     // lookup if the position in world coordinates is a wall tile
-    bool checkWallCollision(sf::FloatRect boundingBox) const;
+    bool checkWallCollision(sf::Vector2f point) const;
 
 private:
     void populateWallBoundingBoxes(const std::vector<int>& tiles);

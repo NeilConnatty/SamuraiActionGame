@@ -63,15 +63,31 @@ void Player::update()
 
     sf::FloatRect boundingBox = m_transform.transformRect(m_sprite.getGlobalBounds());
 
-    sf::FloatRect nextX = boundingBox;
-    nextX.position.x += velocity.x;
-    if (m_map.checkWallCollision(nextX))
-        velocity.x = 0;
-
-    sf::FloatRect nextY = boundingBox;
-    nextY.position.y += velocity.y;
-    if (m_map.checkWallCollision(nextY))
-        velocity.y = 0;
+    if (velocity.x > 0.f) // moving right, check right edge
+    {
+        if (m_map.checkWallCollision({boundingBox.position.x + boundingBox.size.x + velocity.x, boundingBox.position.y}) ||
+            m_map.checkWallCollision({boundingBox.position.x + boundingBox.size.x + velocity.x, boundingBox.position.y + boundingBox.size.y}))
+            velocity.x = 0.f;
+    }
+    else if (velocity.x < 0.f) // moving left, check left edge
+    {
+        if (m_map.checkWallCollision({boundingBox.position.x + velocity.x, boundingBox.position.y}) ||
+            m_map.checkWallCollision({boundingBox.position.x + velocity.x, boundingBox.position.y + boundingBox.size.y}))
+            velocity.x = 0.f;
+    }
+    
+    if (velocity.y > 0.f) // moving down, check bottom edge
+    {
+        if (m_map.checkWallCollision({boundingBox.position.x, boundingBox.position.y + boundingBox.size.y + velocity.y}) ||
+            m_map.checkWallCollision({boundingBox.position.x + boundingBox.size.x, boundingBox.position.y + boundingBox.size.y + velocity.y}))
+            velocity.y = 0.f;
+    }
+    else if (velocity.y < 0.f) // moving up, check top edge
+    {
+        if (m_map.checkWallCollision({boundingBox.position.x, boundingBox.position.y + velocity.y}) ||
+            m_map.checkWallCollision({boundingBox.position.x + boundingBox.size.x, boundingBox.position.y + velocity.y}))
+            velocity.y = 0.f;
+    }
     
     m_transform.translate(velocity);
 }

@@ -102,18 +102,10 @@ void Map::draw(sf::RenderTarget& target) const
     target.draw(m_wallsVertices, sf::RenderStates{&m_wallsTileset});
 }
 
-bool Map::checkWallCollision(sf::FloatRect boundingBox) const
+bool Map::checkWallCollision(sf::Vector2f point) const
 {
-    // need to account for the box covering more than one tile, so figure out which tiles we need to check collisions against
-    uint tileColumnStart = static_cast<uint>(boundingBox.position.x) / tileSize.x;
-    uint tileColumnEnd = static_cast<uint>(boundingBox.position.x + boundingBox.size.x) / tileSize.x;
-    uint tileRowStart = static_cast<uint>(boundingBox.position.y) / tileSize.y;
-    uint tileRowEnd = static_cast<uint>(boundingBox.position.y + boundingBox.size.y) / tileSize.y;
+    uint tileColumn = static_cast<uint>(point.x) / tileSize.x;
+    uint tileRow = static_cast<uint>(point.y) / tileSize.y;
 
-    for (uint column = tileColumnStart; column < tileColumnEnd; ++column)
-        for (uint row = tileRowStart; row < tileRowEnd; ++row)
-            if (m_boundingBoxes[column][row].findIntersection(boundingBox))
-                return true;
-
-    return false;
+    return m_boundingBoxes[tileColumn][tileRow].contains(point);
 }
