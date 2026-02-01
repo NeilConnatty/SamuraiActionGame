@@ -76,9 +76,9 @@ void Map::initialize()
 
 void Map::populateWallBoundingBoxes(const std::vector<int>& tiles)
 {
-    for (uint i = 0; i < mapSize.x; ++i)
+    for (size_t i = 0; i < mapSize.x; ++i)
     {
-        for (uint j = 0; j < mapSize.y; ++j)
+        for (size_t j = 0; j < mapSize.y; ++j)
         {
             // get the current tile number
             const int tileNumber = tiles[i + j * mapSize.x];
@@ -104,8 +104,8 @@ void Map::draw(sf::RenderTarget& target) const
 
 bool Map::checkWallCollision(sf::Vector2f point) const
 {
-    uint tileColumn = static_cast<uint>(point.x) / tileSize.x;
-    uint tileRow = static_cast<uint>(point.y) / tileSize.y;
+    size_t tileColumn = static_cast<size_t>(point.x) / tileSize.x;
+    size_t tileRow = static_cast<size_t>(point.y) / tileSize.y;
 
     return m_boundingBoxes[tileColumn][tileRow].contains(point);
 }
