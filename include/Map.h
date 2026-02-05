@@ -12,7 +12,7 @@ public:
     void drawLighting(sf::RenderTarget& target) const;
 
     // lookup if the position in world coordinates is a wall tile
-    bool checkWallCollision(sf::Vector2f point) const;
+    std::optional<sf::FloatRect> checkWallCollision(sf::FloatRect box) const;
 
 private:
     void populateWallBoundingBoxes(const std::vector<int>& tiles);
@@ -23,7 +23,7 @@ private:
     sf::VertexArray m_foregroundVertices;
 
     static constexpr sf::Vector2u s_mapSize {20, 15};
-    sf::FloatRect m_boundingBoxes[s_mapSize.x][s_mapSize.y];
+    sf::FloatRect m_staticColliders[s_mapSize.x][s_mapSize.y];
 
     sf::Texture m_lightingTexture{"../../assets/sprites/lighting.png"};
     sf::Sprite m_lightingSprite{m_lightingTexture};

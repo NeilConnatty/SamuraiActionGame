@@ -98,7 +98,7 @@ void Map::populateWallBoundingBoxes(const std::vector<int>& tiles)
             case 13:
             case 18:
             {
-                sf::FloatRect& rect = m_boundingBoxes[i][j];
+                sf::FloatRect& rect = m_staticColliders[i][j];
                 rect.position = sf::Vector2f(i * tileSize.x, j * tileSize.y);
                 rect.size = {tileSize.x, tileSize.y};
                 break;
@@ -106,7 +106,7 @@ void Map::populateWallBoundingBoxes(const std::vector<int>& tiles)
             case 9:
             case 10:
             {
-                sf::FloatRect& rect = m_boundingBoxes[i][j];
+                sf::FloatRect& rect = m_staticColliders[i][j];
                 rect.position = sf::Vector2f(i * tileSize.x, j * tileSize.y);
                 rect.size = {tileSize.x / 2, tileSize.y};
                 break;
@@ -115,7 +115,7 @@ void Map::populateWallBoundingBoxes(const std::vector<int>& tiles)
             case 12:
             case 17:
             {
-                sf::FloatRect& rect = m_boundingBoxes[i][j];
+                sf::FloatRect& rect = m_staticColliders[i][j];
                 rect.position = sf::Vector2f((i * tileSize.x) + (tileSize.x / 2), j * tileSize.y);
                 rect.size = {tileSize.x / 2, tileSize.y};
                 break;
@@ -146,10 +146,11 @@ void Map::drawLighting(sf::RenderTarget& target) const
     target.draw(m_lightingSprite);
 }
 
-bool Map::checkWallCollision(sf::Vector2f point) const
+std::optional<sf::FloatRect> Map::checkWallCollision(sf::FloatRect box) const
 {
-    size_t tileColumn = static_cast<size_t>(point.x) / tileSize.x;
-    size_t tileRow = static_cast<size_t>(point.y) / tileSize.y;
-
-    return m_boundingBoxes[tileColumn][tileRow].contains(point);
+    for (size_t col = 0; col < mapSize.x; ++col)
+        for (size_t row = 0; row < mapSize.y; ++row)
+            if (auto ret = m_staticColliders[col][row].findIntersection(box))
+                return ret;
+    return std::nullopt;
 }
