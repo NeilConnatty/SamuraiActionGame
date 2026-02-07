@@ -1,11 +1,13 @@
 #include <LDtkLoader/Level.hpp>
 
-#include <Map.h>
-#include <string.h>
+#include <Level.h>
+#include <Tilesets.h>
 
 
-void Map::populateTileLayer(Map::TileLayer& tileLayer, const ldtk::Layer& layerDef)
+void Level::populateTileLayer(Level::TileLayer& tileLayer, const ldtk::Layer& layerDef, const Tilesets& tilesets)
 {
+    tileLayer.texture = &tilesets.getTexture(layerDef.getTileset().uid);
+    
     const std::vector<ldtk::Tile> tiles = layerDef.allTiles();
     // resize the vertex array to fit the level size
     tileLayer.vertices.setPrimitiveType(sf::PrimitiveType::Triangles);
@@ -39,15 +41,15 @@ void Map::populateTileLayer(Map::TileLayer& tileLayer, const ldtk::Layer& layerD
     }
 }
 
-void Map::initialize(const ldtk::Level& level)
+void Level::initialize(const ldtk::Level& level, const Tilesets& tilesets)
 {
-    populateTileLayer(m_tileLayers[BACKGROUND], level.getLayer("Background"));
-    populateTileLayer(m_tileLayers[MIDGROUND], level.getLayer("Midground"));
-    populateTileLayer(m_tileLayers[FOREGROUND], level.getLayer("Foreground"));
+    populateTileLayer(m_tileLayers[BACKGROUND], level.getLayer("Background"), tilesets);
+    populateTileLayer(m_tileLayers[MIDGROUND], level.getLayer("Midground"), tilesets);
+    populateTileLayer(m_tileLayers[FOREGROUND], level.getLayer("Foreground"), tilesets);
     populateStaticColliders(level.getLayer("StaticColliders"));
 }
 
-void Map::populateStaticColliders(const ldtk::Layer& layer)
+void Level::populateStaticColliders(const ldtk::Layer& layer)
 {
     const auto& colliders = layer.getEntitiesByTag("Collider");
     m_staticColliders.reserve(colliders.size());
@@ -61,12 +63,13 @@ void Map::populateStaticColliders(const ldtk::Layer& layer)
     }
 }
 
-void Map::drawLayer(sf::RenderTarget& target, Map::Layer layer) const
+void Level::drawLayer(sf::RenderTarget& target, Level::Layer layer) const
 {
-    target.draw(m_tileLayers[layer].vertices, sf::RenderStates{&m_tileset});
+    const Level::TileLayer& tileLayer = m_tileLayers[layer];
+    target.draw(tileLayer.vertices, sf::RenderStates{tileLayer.texture});
 }
 
-std::optional<sf::FloatRect> Map::checkWallCollision(sf::FloatRect box) const
+std::optional<sf::FloatRect> Level::checkStaticCollision(sf::FloatRect box) const
 {
     for (sf::FloatRect collider : m_staticColliders)
         if (auto ret = collider.findIntersection(box))

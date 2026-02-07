@@ -1,5 +1,6 @@
 #include <Player.h>
-#include <Map.h>
+#include <Level.h>
+#include <Tilesets.h>
 
 namespace ldtk
 {
@@ -19,8 +20,9 @@ public:
     void handleKeyReleased(const sf::Event::KeyReleased& keyReleased);
 
 private:
-    Map map;
-    Player player{map};
+    Tilesets tilesets;
+    Level level;
+    Player player{level};
 
     sf::FloatRect viewRect{{0.f, 0.f}, {320.f, 240.f}};
     sf::View camera{viewRect};

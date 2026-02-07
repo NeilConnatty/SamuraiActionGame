@@ -5,13 +5,14 @@ namespace ldtk
 class Level;
 class Layer;
 }
+class Tilesets;
 
-class Map
+class Level
 {
 public:
-    Map() = default;
+    Level() = default;
 
-    void initialize(const ldtk::Level& level);
+    void initialize(const ldtk::Level& level, const Tilesets& tilesets);
 
     enum Layer
     {
@@ -23,20 +24,18 @@ public:
     };
     void drawLayer(sf::RenderTarget& target, Layer layer) const;
 
-    // lookup if the position in world coordinates is a wall tile
-    std::optional<sf::FloatRect> checkWallCollision(sf::FloatRect box) const;
+    std::optional<sf::FloatRect> checkStaticCollision(sf::FloatRect box) const;
 
 private:
     struct TileLayer
     {
         sf::VertexArray vertices;
+        const sf::Texture* texture;
         void draw(sf::RenderTarget& target) const;
     };
     std::array<TileLayer, NUM_LAYERS> m_tileLayers;
-    void populateTileLayer(TileLayer& tileLayer, const ldtk::Layer& layerDef);
-    void populateStaticColliders(const ldtk::Layer& colliderLayer);
-
-    sf::Texture m_tileset{"../../assets/sprites/tileset.png"};
+    void populateTileLayer(TileLayer& tileLayer, const ldtk::Layer& layerDef, const Tilesets& tilesets);
 
     std::vector<sf::FloatRect> m_staticColliders;
+    void populateStaticColliders(const ldtk::Layer& colliderLayer);
 };

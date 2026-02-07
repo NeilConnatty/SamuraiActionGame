@@ -5,10 +5,11 @@
 
 void Game::initialize(const ldtk::Project& project)
 {
-    const ldtk::World& world = project.getWorld();
-    const ldtk::Level& level = world.getLevel("Level_0");
+    const ldtk::World& worldDef = project.getWorld();
+    const ldtk::Level& levelDef = worldDef.getLevel("Level_0");
 
-    map.initialize(level);
+    tilesets.initialize(project);
+    level.initialize(levelDef, tilesets);
     player.initialize();
 }
 
@@ -21,10 +22,10 @@ void Game::draw(sf::RenderTarget& target)
 {
     target.setView(camera);
 
-    map.drawLayer(target, Map::BACKGROUND);
-    map.drawLayer(target, Map::MIDGROUND);
+    level.drawLayer(target, Level::BACKGROUND);
+    level.drawLayer(target, Level::MIDGROUND);
     player.draw(target);
-    map.drawLayer(target, Map::FOREGROUND);
+    level.drawLayer(target, Level::FOREGROUND);
     // map.drawLayer(target, Map::LIGHTING); not implemented in ldtk yet
 }
 

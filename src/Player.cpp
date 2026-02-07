@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <Player.h>
-#include <Map.h>
+#include <Level.h>
 
 enum PlayerInput : size_t
 {
@@ -64,7 +64,7 @@ void Player::update()
     // resolve collisions in y axis
     m_transform.translate({0.f, velocity.y});
     sf::FloatRect nextCollider = m_transform.transformRect(m_collider);
-    if (auto ret = m_map.checkWallCollision(nextCollider))
+    if (auto ret = m_level.checkStaticCollision(nextCollider))
     {
         sf::FloatRect intersect = *ret;
         if (nextCollider.position.y < intersect.position.y)
@@ -76,7 +76,7 @@ void Player::update()
     // resolve collisions in x axis
     m_transform.translate({velocity.x, 0.f});
     nextCollider = m_transform.transformRect(m_collider);
-    if (auto ret = m_map.checkWallCollision(nextCollider))
+    if (auto ret = m_level.checkStaticCollision(nextCollider))
     {
         sf::FloatRect intersect = *ret;
         if (nextCollider.position.x < intersect.position.x)
