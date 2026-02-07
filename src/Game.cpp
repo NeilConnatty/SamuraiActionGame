@@ -1,4 +1,5 @@
 #include <LDtkLoader/Project.hpp>
+#include <SFML/Graphics.hpp>
 
 #include <Game.h>
 
@@ -18,6 +19,8 @@ void Game::update()
 
 void Game::draw(sf::RenderTarget& target)
 {
+    target.setView(camera);
+
     map.drawLayer(target, Map::BACKGROUND);
     map.drawLayer(target, Map::MIDGROUND);
     player.draw(target);

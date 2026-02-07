@@ -21,4 +21,7 @@ public:
 private:
     Map map;
     Player player{map};
+
+    sf::FloatRect viewRect{{0.f, 0.f}, {320.f, 240.f}};
+    sf::View camera{viewRect};
 };
