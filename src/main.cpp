@@ -1,4 +1,6 @@
 #include <SFML/Graphics.hpp>
+#include <LDtkLoader/Project.hpp>
+
 #include <Player.h>
 #include <Map.h>
 
@@ -10,6 +12,19 @@ int main()
     auto window = sf::RenderWindow(sf::VideoMode(windowResolution), "Samurai Action Game");
     window.setView(sf::View{viewport});
     window.setFramerateLimit(60);
+
+    ldtk::Project project;
+    try
+    {
+        project.loadFromFile("../../assets/ldtk/roningear.ldtk");
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return 1;
+    }
+    const ldtk::World& world = project.getWorld();
+    const ldtk::Level& level = world.getLevel("Level_0");
 
     Map map;
     map.initialize();
