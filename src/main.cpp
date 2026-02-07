@@ -1,4 +1,6 @@
 #include <SFML/Graphics.hpp>
+#include <LDtkLoader/Project.hpp>
+
 #include <Player.h>
 #include <Map.h>
 
@@ -11,8 +13,21 @@ int main()
     window.setView(sf::View{viewport});
     window.setFramerateLimit(60);
 
+    ldtk::Project project;
+    try
+    {
+        project.loadFromFile("../../assets/ldtk/roningear.ldtk");
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return 1;
+    }
+    const ldtk::World& world = project.getWorld();
+    const ldtk::Level& level = world.getLevel("Level_0");
+
     Map map;
-    map.initialize();
+    map.initialize(level);
     Player player{map};
     player.initialize();
 
@@ -38,11 +53,11 @@ int main()
         player.update();
 
         window.clear(sf::Color::Black);
-        map.drawBackground(window);
-        map.drawWalls(window);
+        map.drawLayer(window, Map::BACKGROUND);
+        map.drawLayer(window, Map::MIDGROUND);
         player.draw(window);
-        map.drawForeground(window);
-        map.drawLighting(window);
+        map.drawLayer(window, Map::FOREGROUND);
+        // map.drawLayer(window, Map::LIGHTING); not implemented in ldtk yet
         window.display();
     }
 }

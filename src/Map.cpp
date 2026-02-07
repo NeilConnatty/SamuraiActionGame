@@ -1,156 +1,75 @@
+#include <LDtkLoader/Level.hpp>
+
 #include <Map.h>
 #include <string.h>
 
-constexpr sf::Vector2u mapSize = {20, 15};
-constexpr sf::Vector2u tileSize = {16, 16};
 
-void populateVertexArray(sf::VertexArray& vertices, const sf::Texture& tileset, const std::vector<int> tiles)
+void Map::populateTileLayer(Map::TileLayer& tileLayer, const ldtk::Layer& layerDef)
 {
+    const std::vector<ldtk::Tile> tiles = layerDef.allTiles();
     // resize the vertex array to fit the level size
-    vertices.setPrimitiveType(sf::PrimitiveType::Triangles);
-    vertices.resize(mapSize.x * mapSize.y * 6);
+    tileLayer.vertices.setPrimitiveType(sf::PrimitiveType::Triangles);
+    tileLayer.vertices.resize(tiles.size() * 6);
 
-    // populate the vertex array, with two triangles per tile
-    for (unsigned int i = 0; i < mapSize.x; ++i)
+    size_t i = 0;
+    for (const ldtk::Tile tile : tiles)
     {
-        for (unsigned int j = 0; j < mapSize.y; ++j)
-        {
-            // get the current tile number
-            const int tileNumber = tiles[i + j * mapSize.x];
+        // tile coordinates are defined by 4 corners in clockwise order around the rectangle
+        // we will translate that to 2 triangles
+        std::array<ldtk::Vertex, 4> tileCoords = tile.getVertices();
+        
+        // get a pointer to the triangles' vertices of the current tile
+        sf::Vertex *triangles = &tileLayer.vertices[i * 6];
+        // define the 6 corners of the two triangles
+        triangles[0].position = sf::Vector2f(tileCoords[0].pos.x, tileCoords[0].pos.y);
+        triangles[1].position = sf::Vector2f(tileCoords[1].pos.x, tileCoords[1].pos.y);
+        triangles[2].position = sf::Vector2f(tileCoords[3].pos.x, tileCoords[3].pos.y);
+        triangles[3].position = sf::Vector2f(tileCoords[3].pos.x, tileCoords[3].pos.y);
+        triangles[4].position = sf::Vector2f(tileCoords[1].pos.x, tileCoords[1].pos.y);
+        triangles[5].position = sf::Vector2f(tileCoords[2].pos.x, tileCoords[2].pos.y);
 
-            // find its position in the tileset texture
-            const int tu = tileNumber % (tileset.getSize().x / tileSize.x);
-            const int tv = tileNumber / (tileset.getSize().x / tileSize.x);
-
-            // get a pointer to the triangles' vertices of the current tile
-            sf::Vertex *triangles = &vertices[(i + j * mapSize.x) * 6];
-
-            // define the 6 corners of the two triangles
-            triangles[0].position = sf::Vector2f(i * tileSize.x, j * tileSize.y);
-            triangles[1].position = sf::Vector2f((i + 1) * tileSize.x, j * tileSize.y);
-            triangles[2].position = sf::Vector2f(i * tileSize.x, (j + 1) * tileSize.y);
-            triangles[3].position = sf::Vector2f(i * tileSize.x, (j + 1) * tileSize.y);
-            triangles[4].position = sf::Vector2f((i + 1) * tileSize.x, j * tileSize.y);
-            triangles[5].position = sf::Vector2f((i + 1) * tileSize.x, (j + 1) * tileSize.y);
-
-            // define the 6 matching texture coordinates
-            triangles[0].texCoords = sf::Vector2f(tu * tileSize.x, tv * tileSize.y);
-            triangles[1].texCoords = sf::Vector2f((tu + 1) * tileSize.x, tv * tileSize.y);
-            triangles[2].texCoords = sf::Vector2f(tu * tileSize.x, (tv + 1) * tileSize.y);
-            triangles[3].texCoords = sf::Vector2f(tu * tileSize.x, (tv + 1) * tileSize.y);
-            triangles[4].texCoords = sf::Vector2f((tu + 1) * tileSize.x, tv * tileSize.y);
-            triangles[5].texCoords = sf::Vector2f((tu + 1) * tileSize.x, (tv + 1) * tileSize.y);
-        }
+        // define the 6 matching texture coordinates
+        triangles[0].texCoords = sf::Vector2f(tileCoords[0].tex.x, tileCoords[0].tex.y);
+        triangles[1].texCoords = sf::Vector2f(tileCoords[1].tex.x, tileCoords[1].tex.y);
+        triangles[2].texCoords = sf::Vector2f(tileCoords[3].tex.x, tileCoords[3].tex.y);
+        triangles[3].texCoords = sf::Vector2f(tileCoords[3].tex.x, tileCoords[3].tex.y);
+        triangles[4].texCoords = sf::Vector2f(tileCoords[1].tex.x, tileCoords[1].tex.y);
+        triangles[5].texCoords = sf::Vector2f(tileCoords[2].tex.x, tileCoords[2].tex.y);
+        ++i;
     }
 }
 
-void populateTiles(std::vector<int>& outTiles, const char* tilemapFilename)
+void Map::initialize(const ldtk::Level& level)
 {
-    sf::FileInputStream tilemap{tilemapFilename};
-    std::optional<size_t> fileSize = tilemap.getSize();
-    
-    char* fileData = new char[*fileSize + 1];
-    auto success = tilemap.read(fileData, *fileSize);
-    assert(success);
-    const char* delimiters = " ,\n";
-    char* split = strtok(fileData, delimiters);
-    while (split != nullptr)
-    {
-        outTiles.push_back(atoi(split));
-        split = strtok(nullptr, delimiters);
-    }
-    delete [] fileData;
+    populateTileLayer(m_tileLayers[BACKGROUND], level.getLayer("Background"));
+    populateTileLayer(m_tileLayers[MIDGROUND], level.getLayer("Midground"));
+    populateTileLayer(m_tileLayers[FOREGROUND], level.getLayer("Foreground"));
+    populateStaticColliders(level.getLayer("StaticColliders"));
 }
 
-void Map::initialize()
+void Map::populateStaticColliders(const ldtk::Layer& layer)
 {
-    std::vector<int> tiles;
-    
-    tiles.reserve(mapSize.x * mapSize.y);
-    populateTiles(tiles, "../../assets/sprites/background-tilemap.txt");
-    populateVertexArray(m_backgroundVertices, m_tileset, tiles);
-    
-    tiles.clear();
-    populateTiles(tiles, "../../assets/sprites/walls-tilemap.txt");
-    populateVertexArray(m_wallsVertices, m_tileset, tiles);
-    populateWallBoundingBoxes(tiles);
-    
-    tiles.clear();
-    populateTiles(tiles, "../../assets/sprites/foreground-tilemap.txt");
-    populateVertexArray(m_foregroundVertices, m_tileset, tiles);
-
-}
-
-void Map::populateWallBoundingBoxes(const std::vector<int>& tiles)
-{
-    for (size_t i = 0; i < mapSize.x; ++i)
+    const auto& colliders = layer.getEntitiesByTag("Collider");
+    m_staticColliders.reserve(colliders.size());
+    for (const ldtk::Entity& collider : colliders)
     {
-        for (size_t j = 0; j < mapSize.y; ++j)
-        {
-            // get the current tile number
-            const int tileNumber = tiles[i + j * mapSize.x];
-
-            switch (tileNumber)
-            {
-            case 1:
-            case 2:
-            case 4:
-            case 13:
-            case 18:
-            {
-                sf::FloatRect& rect = m_staticColliders[i][j];
-                rect.position = sf::Vector2f(i * tileSize.x, j * tileSize.y);
-                rect.size = {tileSize.x, tileSize.y};
-                break;
-            }
-            case 9:
-            case 10:
-            {
-                sf::FloatRect& rect = m_staticColliders[i][j];
-                rect.position = sf::Vector2f(i * tileSize.x, j * tileSize.y);
-                rect.size = {tileSize.x / 2, tileSize.y};
-                break;
-            }
-            case 11:
-            case 12:
-            case 17:
-            {
-                sf::FloatRect& rect = m_staticColliders[i][j];
-                rect.position = sf::Vector2f((i * tileSize.x) + (tileSize.x / 2), j * tileSize.y);
-                rect.size = {tileSize.x / 2, tileSize.y};
-                break;
-            }
-            }
-        }
+        ldtk::IntPoint pos = collider.getPosition();
+        ldtk::IntPoint size = collider.getSize();
+        m_staticColliders.push_back(sf::FloatRect(
+            {static_cast<float>(pos.x), static_cast<float>(pos.y)}, 
+            {static_cast<float>(size.x), static_cast<float>(size.y)}));
     }
 }
 
-void Map::drawBackground(sf::RenderTarget& target) const
+void Map::drawLayer(sf::RenderTarget& target, Map::Layer layer) const
 {
-    target.draw(m_backgroundVertices, sf::RenderStates{&m_tileset});
-}
-
-void Map::drawWalls(sf::RenderTarget& target) const
-{
-    target.draw(m_wallsVertices, sf::RenderStates{&m_tileset});
-}
-
-void Map::drawForeground(sf::RenderTarget& target) const
-{
-    target.draw(m_foregroundVertices, sf::RenderStates{&m_tileset});
-
-}
-
-void Map::drawLighting(sf::RenderTarget& target) const
-{
-    target.draw(m_lightingSprite);
+    target.draw(m_tileLayers[layer].vertices, sf::RenderStates{&m_tileset});
 }
 
 std::optional<sf::FloatRect> Map::checkWallCollision(sf::FloatRect box) const
 {
-    for (size_t col = 0; col < mapSize.x; ++col)
-        for (size_t row = 0; row < mapSize.y; ++row)
-            if (auto ret = m_staticColliders[col][row].findIntersection(box))
-                return ret;
+    for (sf::FloatRect collider : m_staticColliders)
+        if (auto ret = collider.findIntersection(box))
+            return ret;
     return std::nullopt;
 }

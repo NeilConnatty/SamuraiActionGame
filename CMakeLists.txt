@@ -12,9 +12,15 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
+FetchContent_Declare(
+    LDtkLoader
+    GIT_REPOSITORY https://github.com/Madour/LDtkLoader
+    GIT_TAG 1.5.3.1)
+FetchContent_MakeAvailable(LDtkLoader)
+
 include_directories(include)
 add_executable(action-game src/main.cpp src/Player.cpp src/Map.cpp)
 target_compile_features(action-game PRIVATE cxx_std_17)
-target_link_libraries(action-game PRIVATE SFML::Graphics)
+target_link_libraries(action-game PRIVATE LDtkLoader::LDtkLoader SFML::Graphics)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT action-game)
