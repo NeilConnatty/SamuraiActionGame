@@ -3,9 +3,6 @@
 #include <Map.h>
 #include <string.h>
 
-constexpr sf::Vector2u mapSize = {20, 15};
-constexpr sf::Vector2u tileSize = {16, 16};
-
 enum TileLayers
 {
     BACKGROUND = 0,
@@ -19,12 +16,13 @@ void Map::populateTileLayer(Map::TileLayer& tileLayer, const ldtk::Layer& layerD
     const std::vector<ldtk::Tile> tiles = layerDef.allTiles();
     // resize the vertex array to fit the level size
     tileLayer.vertices.setPrimitiveType(sf::PrimitiveType::Triangles);
-    tileLayer.vertices.resize(layerDef.allTiles().size() * 6);
+    tileLayer.vertices.resize(tiles.size() * 6);
 
     size_t i = 0;
     for (const ldtk::Tile tile : tiles)
     {
-        // tile coordinates are defined by 4 corners--we will translate that rectangle to 2 triangles
+        // tile coordinates are defined by 4 corners in clockwise order around the rectangle
+        // we will translate that to 2 triangles
         std::array<ldtk::Vertex, 4> tileCoords = tile.getVertices();
         
         // get a pointer to the triangles' vertices of the current tile
@@ -32,18 +30,18 @@ void Map::populateTileLayer(Map::TileLayer& tileLayer, const ldtk::Layer& layerD
         // define the 6 corners of the two triangles
         triangles[0].position = sf::Vector2f(tileCoords[0].pos.x, tileCoords[0].pos.y);
         triangles[1].position = sf::Vector2f(tileCoords[1].pos.x, tileCoords[1].pos.y);
-        triangles[2].position = sf::Vector2f(tileCoords[2].pos.x, tileCoords[2].pos.y);
-        triangles[3].position = sf::Vector2f(tileCoords[2].pos.x, tileCoords[2].pos.y);
+        triangles[2].position = sf::Vector2f(tileCoords[3].pos.x, tileCoords[3].pos.y);
+        triangles[3].position = sf::Vector2f(tileCoords[3].pos.x, tileCoords[3].pos.y);
         triangles[4].position = sf::Vector2f(tileCoords[1].pos.x, tileCoords[1].pos.y);
-        triangles[5].position = sf::Vector2f(tileCoords[3].pos.x, tileCoords[3].pos.y);
+        triangles[5].position = sf::Vector2f(tileCoords[2].pos.x, tileCoords[2].pos.y);
 
         // define the 6 matching texture coordinates
         triangles[0].texCoords = sf::Vector2f(tileCoords[0].tex.x, tileCoords[0].tex.y);
         triangles[1].texCoords = sf::Vector2f(tileCoords[1].tex.x, tileCoords[1].tex.y);
-        triangles[2].texCoords = sf::Vector2f(tileCoords[2].tex.x, tileCoords[2].tex.y);
-        triangles[3].texCoords = sf::Vector2f(tileCoords[2].tex.x, tileCoords[2].tex.y);
+        triangles[2].texCoords = sf::Vector2f(tileCoords[3].tex.x, tileCoords[3].tex.y);
+        triangles[3].texCoords = sf::Vector2f(tileCoords[3].tex.x, tileCoords[3].tex.y);
         triangles[4].texCoords = sf::Vector2f(tileCoords[1].tex.x, tileCoords[1].tex.y);
-        triangles[5].texCoords = sf::Vector2f(tileCoords[3].tex.x, tileCoords[3].tex.y);
+        triangles[5].texCoords = sf::Vector2f(tileCoords[2].tex.x, tileCoords[2].tex.y);
         ++i;
     }
 }
