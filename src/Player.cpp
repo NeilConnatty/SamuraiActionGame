@@ -1,23 +1,33 @@
+#include <LDtkLoader/Entity.hpp>
+
 #include <SFML/Graphics.hpp>
 
 #include <Player.h>
 #include <Level.h>
+#include <Tilesets.h>
 
 enum PlayerInput : size_t
 {
     INPUT_UP = 0,
-    INPUT_LEFT ,
+    INPUT_LEFT,
     INPUT_DOWN,
     INPUT_RIGHT,
 };
 
-#define PLAYER_SPEED 2.f // movement speed in pixels per frame
-
-void Player::initialize()
+void Player::initialize(const ldtk::EntityRef& playerData, const Tilesets& tilesets)
 {
+    m_speed = playerData->getField<float>("Speed").value();
+
     m_transform = sf::Transform::Identity;
-    m_transform.translate({50.f, 50.f});
+    ldtk::IntPoint worldPos = playerData->getWorldPosition();
+    m_transform.translate({static_cast<float>(worldPos.x), static_cast<float>(worldPos.y)});
+    
     m_inputs = {false, false, false, false};
+
+    auto tileData = playerData->getField<ldtk::TileRect>("IdleSprite").value();
+    ldtk::IntPoint texSize = playerData->getSize();
+    m_texture = tilesets.getTexture(tileData.getTileset().uid);
+    m_sprite.setTextureRect({{tileData.bounds.x, tileData.bounds.y}, {texSize.x, texSize.y}});
 }
 
 void Player::handleKeyPressed(const sf::Event::KeyPressed& keyPressed)
@@ -60,7 +70,7 @@ void Player::update()
         return;
 
     direction = direction.normalized();
-    sf::Vector2f velocity = direction * PLAYER_SPEED;
+    sf::Vector2f velocity = direction * m_speed;
    
     // resolve collisions in y axis
     m_transform.translate({0.f, velocity.y});

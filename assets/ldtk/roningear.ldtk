@@ -11,9 +11,18 @@
 	"iid": "9c904320-fa90-11f0-82d1-81f185796c02",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 13,
+	"nextUid": 16,
 	"identifierStyle": "Capitalize",
-	"toc": [],
+	"toc": [{
+		"identifier": "Player",
+		"instances": [],
+		"instancesData": [{ "iids": {
+			"worldIid": "9c906a30-fa90-11f0-82d1-7309e3020c72",
+			"levelIid": "9c909140-fa90-11f0-82d1-cdf3dbbaf0a3",
+			"layerIid": "40fd40b0-fa90-11f0-82d1-e53f66f46244",
+			"entityIid": "53b8a1e0-fa90-11f0-82d1-6192a02cc5ac"
+		}, "worldX": 32, "worldY": 192, "widPx": 16, "heiPx": 32, "fields" : {} }]
+	}],
 	"worldLayout": "Free",
 	"worldGridWidth": 256,
 	"worldGridHeight": 256,
@@ -256,7 +265,7 @@
 			"identifier": "Player",
 			"uid": 8,
 			"tags": [],
-			"exportToToc": false,
+			"exportToToc": true,
 			"allowOutOfBounds": false,
 			"doc": null,
 			"width": 16,
@@ -322,6 +331,46 @@
 					"allowedRefsEntityUid": null,
 					"allowedRefTags": [],
 					"tilesetUid": null
+				},
+				{
+					"identifier": "IdleSprite",
+					"doc": null,
+					"__type": "Tile",
+					"uid": 15,
+					"type": "F_Tile",
+					"isArray": false,
+					"canBeNull": true,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": true,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": {
+						"id": "V_String",
+						"params": ["0,0,16,16"]
+					},
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": 14
 				}
 			]
 		}
@@ -346,6 +395,28 @@
 			"cachedPixelData": {
 				"opaqueTiles": "0111111110000111101111110",
 				"averageColors": "0000f657f657f657f657f757f657f657f6577767766787678667f757f767f767f7678667f657f767f767fba9fba9fb990000"
+			}
+		},
+		{
+			"__cWid": 5,
+			"__cHei": 6,
+			"identifier": "SpriteSheet",
+			"uid": 14,
+			"relPath": "../sprites/character.png",
+			"embedAtlas": null,
+			"pxWid": 80,
+			"pxHei": 96,
+			"tileGridSize": 16,
+			"spacing": 0,
+			"padding": 0,
+			"tags": [],
+			"tagsSourceEnumUid": null,
+			"enumTags": [],
+			"customData": [],
+			"savedSelections": [],
+			"cachedPixelData": {
+				"opaqueTiles": "000000000000000000000000000000",
+				"averageColors": "3dba2dca2dca2dca2dba7c878d878d978d977d8700000000000000000000000000000000000000000000000000000000000000000000000000000000"
 			}
 		}
 	], "enums": [], "externalEnums": [], "levelFields": [] },
@@ -400,14 +471,17 @@
 							"__grid": [2,12],
 							"__pivot": [0,0],
 							"__tags": [],
-							"__tile": null,
+							"__tile": { "tilesetUid": 14, "x": 0, "y": 0, "w": 16, "h": 16 },
 							"__smartColor": "#BE4A2F",
 							"iid": "53b8a1e0-fa90-11f0-82d1-6192a02cc5ac",
 							"width": 16,
 							"height": 32,
 							"defUid": 8,
 							"px": [32,192],
-							"fieldInstances": [{ "__identifier": "Speed", "__type": "Float", "__value": 2, "__tile": null, "defUid": 11, "realEditorValues": [] }],
+							"fieldInstances": [
+								{ "__identifier": "Speed", "__type": "Float", "__value": 2, "__tile": null, "defUid": 11, "realEditorValues": [{ "id": "V_Float", "params": [2] }] },
+								{ "__identifier": "IdleSprite", "__type": "Tile", "__value": { "tilesetUid": 14, "x": 0, "y": 0, "w": 16, "h": 16 }, "__tile": { "tilesetUid": 14, "x": 0, "y": 0, "w": 16, "h": 16 }, "defUid": 15, "realEditorValues": [null] }
+							],
 							"__worldX": 32,
 							"__worldY": 192
 						}

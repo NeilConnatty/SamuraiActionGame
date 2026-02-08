@@ -12,10 +12,14 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
+set(ldtk_patch_command git apply ${CMAKE_CURRENT_SOURCE_DIR}/patches/ldtkloader.patch)
+
 FetchContent_Declare(
     LDtkLoader
     GIT_REPOSITORY https://github.com/Madour/LDtkLoader
-    GIT_TAG 1.5.3.1)
+    GIT_TAG master
+    PATCH_COMMAND ${ldtk_patch_command}
+)
 FetchContent_MakeAvailable(LDtkLoader)
 
 include_directories(include)

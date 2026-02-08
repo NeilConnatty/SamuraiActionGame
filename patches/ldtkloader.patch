@@ -1,0 +1,27 @@
+diff --git a/src/Project.cpp b/src/Project.cpp
+index fc0670e..685af57 100644
+--- a/src/Project.cpp
++++ b/src/Project.cpp
+@@ -325,13 +325,17 @@ void Project::load(const nlohmann::json& j, const FileLoader& file_loader, bool
+     if (j.contains("toc")) {
+         for (const auto& toc_entry : j["toc"]) {
+             auto entity_name = toc_entry["identifier"].get<std::string>();
+-            for (const auto& ref : toc_entry["instances"]) {
++/* ---- Modified by Neil Connatty ---- */
++/* ---- Modifications start ---- */
++            for (const auto& ref: toc_entry["instancesData"]) {
++                auto& iids = ref["iids"];
+                 auto entity_ref = EntityRef(
+-                    IID(ref["entityIid"]),
+-                    IID(ref["layerIid"]),
+-                    IID(ref["levelIid"]),
+-                    IID(ref["worldIid"])
++                    IID(iids["entityIid"]),
++                    IID(iids["layerIid"]),
++                    IID(iids["levelIid"]),
++                    IID(iids["worldIid"])
+                 );
++/* ---- Modifications end ---- */
+                 resolveEntityRef(entity_ref);
+ 
+                 m_toc.push_back(entity_ref);
