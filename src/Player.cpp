@@ -13,8 +13,6 @@ enum PlayerInput : size_t
     INPUT_RIGHT,
 };
 
-#define PLAYER_SPEED 2.f // movement speed in pixels per frame
-
 void Player::initialize(const ldtk::EntityRef& playerData)
 {
     m_speed = playerData->getField<float>("Speed").value();
@@ -64,7 +62,7 @@ void Player::update()
         return;
 
     direction = direction.normalized();
-    sf::Vector2f velocity = direction * PLAYER_SPEED;
+    sf::Vector2f velocity = direction * m_speed;
    
     // resolve collisions in y axis
     m_transform.translate({0.f, velocity.y});
